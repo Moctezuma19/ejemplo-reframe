@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [reframeproject.db :as db]
+   [reframeproject.coeffects :as coeffects]
    ))
 
 (re-frame/reg-event-db
@@ -10,16 +11,18 @@
    db/default-db))
 
 (re-frame/reg-event-db
- ::onchangetexto
+ ::on-change-texto
  (fn [db [_ newTexto]]
       (assoc db :texto newTexto)))
 
 (re-frame/reg-event-db
- ::agregatexto
- (fn [db [_ texto]]
-   (assoc db :notas (conj (db :notas) texto))))
-
-(re-frame/reg-event-db
- ::eliminatexto
+ ::elimina-texto
  (fn [db [_ id]]
-   (assoc db :notas (remove #(= id (:id %)) (:notas db)))))
+   (assoc db :notas (dissoc (db :notas) id))))
+
+(re-frame/reg-event-fx
+ ::guarda-texto
+ [(re-frame/inject-cofx :nuevo-id)] ;; <- esto es nuevo, aquí estamos inyectando el coefecto
+ (fn [cofx [_ texto]]
+   (let [{:keys [db nuevo-id]} cofx]
+     {:db (assoc-in db [:notas nuevo-id] texto)})))
