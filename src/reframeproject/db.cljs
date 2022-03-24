@@ -2,4 +2,5 @@
 
 (def default-db
   {:texto    ""
-   :notas    {}})
+   :notas    {}
+   :visible false})

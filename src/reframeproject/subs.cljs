@@ -16,3 +16,13 @@
  ::notas
  (fn [db]
    (:notas db)))
+
+(re-frame/reg-sub
+ ::visible
+ (fn [db]
+   (:visible db)))
+
+(re-frame/reg-sub
+ ::total
+ (fn [_] 
+   (count @(re-frame/subscribe [::notas]))))

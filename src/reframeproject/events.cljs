@@ -16,6 +16,11 @@
       (assoc db :texto newTexto)))
 
 (re-frame/reg-event-db
+ ::cambia-visibilidad
+ (fn [db [_]]
+   (assoc db :visible (not (db :visible)))))
+
+(re-frame/reg-event-db
  ::elimina-texto
  (fn [db [_ id]]
    (assoc db :notas (dissoc (db :notas) id))))
