@@ -23,11 +23,12 @@
                            :border-radius "6px 6px 0 0"}}
     [:div.field
      [:div.control {:style {:display "flex"}}
-      [:span.icon {:style {:margin-right 5
-                           :margin-top   "2%"
-                           :cursor       "pointer"
-                           :color        (when @(re-frame/subscribe [::subs/visible]) "lightgray")
-                           :on-click     #(re-frame/dispatch [::events/cambia-visibilidad])}}
+      [:span.icon {:style    {:margin-right 5
+                              :margin-top   "2%"
+                              :cursor       "pointer"
+                              :color        (when @(re-frame/subscribe [::subs/visible]) "lightgray")
+                              }
+                   :on-click #(re-frame/dispatch [::events/cambia-visibilidad])}
        [:i.fas.fa-chevron-down]]
       [:input.input {:placeholder "Ingresa tu texto"
                      :value       @(re-frame/subscribe [::subs/texto])

@@ -2,8 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [reframeproject.db :as db]
-   [reframeproject.coeffects :as coeffects]
-   ))
+   [reframeproject.coeffects :as coeffects]))
 
 (re-frame/reg-event-db
  ::initialize-db
