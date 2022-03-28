@@ -10,24 +10,37 @@
   ^{:key id}
   [:div.box {:style {:border-radius 0
                      :margin-bottom 0
-                     :display @(re-frame/subscribe [::subs/muestra? (nota :seleccionado)])}}
-   [:span.icon {:style    {:float  "right"
-                           :cursor "pointer"}
-                :on-click #(re-frame/dispatch [::events/elimina-texto id])}
-    [:i.fas.fa-close]]
-   [:span.icon {:style    {:border        "1px solid lightgray"
-                           :border-radius "13px"
-                           :color         "lightgreen"
-                           :cursor        "pointer"}
-                :on-click #(re-frame/dispatch [::events/selecciona-texto id])}
-    [:i.fas.fa-check {:style {:display (if (nota :seleccionado) 
-                                         "block" 
-                                         "none")}}]]
-   [:p {:style {:text-decoration (when (nota :seleccionado) "line-through")
-                :color           (when (nota :seleccionado) "lightgray")
-                :display "inline"
-                :margin-left "10px"}} 
-    (nota :texto)]])
+                     :display       @(re-frame/subscribe [::subs/muestra? (nota :seleccionado)])}}
+   [:div {:style {:display "inline-flex"
+                  :width   "95%"}}
+    [:span.icon {:style    {:border        "1px solid lightgray"
+                            :border-radius "13px"
+                            :color         "lightgreen"
+                            :cursor        "pointer"
+                            :margin-top    "2%"
+                            :visibility    (when (= id @(re-frame/subscribe [::subs/id-texto-editando])) "hidden")}
+                 :on-click #(re-frame/dispatch [::events/selecciona-texto id])}
+     [:i.fas.fa-check {:style {:display (if (nota :seleccionado)
+                                          "block"
+                                          "none")}}]]
+    [:input.input {:style           {:text-decoration (when (nota :seleccionado)
+                                                        "line-through")
+                                     :color           (when (nota :seleccionado)
+                                                        "lightgray")
+
+                                     :border          (when-not (= id @(re-frame/subscribe [::subs/id-texto-editando])) "none")
+                                     :margin-left     "10px"}
+                   :read-only       (if (= id @(re-frame/subscribe [::subs/id-texto-editando])) false true)
+                   :on-double-click #(re-frame/dispatch [::events/cambia-id-texto-editando id])
+                   :on-blur         #(re-frame/dispatch [::events/cambia-id-texto-editando -1])
+                   :on-change       #(re-frame/dispatch [::events/cambia-texto id (-> % .-target .-value)])
+                   :value           (nota :texto)}]]
+   [:div {:style {:display "inline-flex"
+                  :width   "5%"}}
+    [:span.icon {:style    {:visibility (when (= id @(re-frame/subscribe [::subs/id-texto-editando])) "hidden")
+                            :cursor     "pointer"}
+                 :on-click #(re-frame/dispatch [::events/elimina-texto id])}
+     [:i.fas.fa-close]]]])
 
 (defn formulario []
   [:div
@@ -39,14 +52,15 @@
       [:span.icon {:style    {:margin-right 5
                               :margin-top   "2%"
                               :cursor       "pointer"
-                              :color        (when @(re-frame/subscribe [::subs/seleccionados]) "lightgray")}
+                              :color        (when @(re-frame/subscribe [::subs/seleccionados]) 
+                                              "lightgray")}
                    :on-click #(re-frame/dispatch [::events/cambia-seleccionados])}
        [:i.fas.fa-chevron-down]]
       [:input.input {:placeholder "Ingresa tu texto"
                      :value       @(re-frame/subscribe [::subs/texto])
                      :on-change   #(re-frame/dispatch [::events/on-change-texto (-> % .-target .-value)])
                      :required    true}]]]]
-   (map notas @(re-frame/subscribe [::subs/notas]))
+   (doall (map notas @(re-frame/subscribe [::subs/notas])))
    [:div.box {:style {:border-radius "0 0 6px 6px"}}
     [:span {:style {:margin-right "10px"}}
      (str "Por leer: " @(re-frame/subscribe [::subs/total]))]

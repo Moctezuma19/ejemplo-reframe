@@ -19,13 +19,16 @@
 
 (re-frame/reg-sub
  ::total
- (fn [_]
-   (count (filter (fn [[_ v]] (not (v :seleccionado))) @(re-frame/subscribe [::notas])))))
+ :<- [::notas]
+ (fn [notas _]
+   (count (filter (fn [[_ v]] (not (v :seleccionado))) notas))))
 
 (re-frame/reg-sub
  ::hay-marcadas
- (fn [_]
-   (>  (- (count @(re-frame/subscribe [::notas])) @(re-frame/subscribe [::total])) 0)))
+ :<- [::notas]
+ :<- [::total]
+ (fn [[notas total] _]
+   (>  (- (count notas) total) 0)))
 
 
 (re-frame/reg-sub
@@ -40,7 +43,16 @@
 
 (re-frame/reg-sub
  ::muestra?
- (fn [_ [_ seleccionado]]
-   (let [opcion @(re-frame/subscribe [::opcion-seleccionada])]
-     (if (= opcion 1) "block" (if (and (= opcion 2) (not seleccionado)) "block" (if (and (= opcion 3) seleccionado) "block" "none"))))))
+ :<- [::opcion-seleccionada]
+ (fn [opcion-seleccionada [_ seleccionado]]
+   (case opcion-seleccionada
+     1 "block"
+     2 (if (not seleccionado) "block" "none")
+     3 (if seleccionado "block" "none")
+     _ "none")))
+
+(re-frame/reg-sub
+ ::id-texto-editando
+ (fn [db]
+   (:id-texto-editando db)))
   

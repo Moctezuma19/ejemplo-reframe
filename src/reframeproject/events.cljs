@@ -29,6 +29,11 @@
  (fn [db [_ id-texto]]
    (assoc db :notas (assoc-in (db :notas) [id-texto :seleccionado]  (not (((db :notas) id-texto) :seleccionado))))))
 
+(re-frame/reg-event-db
+ ::cambia-texto
+ (fn [db [_ id-texto nuevoTexto]]
+   (assoc db :notas (assoc-in (db :notas) [id-texto :texto]  nuevoTexto))))
+
 (defn actualiza-nota
   [nota seleccionado]
   (let [[id-nota contenido] nota]
@@ -51,3 +56,8 @@
    (let [{:keys [db nuevo-id]} cofx]
      (re-frame/dispatch [::on-change-texto ""])
      {:db (assoc-in db [:notas nuevo-id] {:seleccionado false :texto texto})})))
+
+(re-frame/reg-event-db
+ ::cambia-id-texto-editando
+ (fn [db [_ id-texto]]
+   (assoc db :id-texto-editando id-texto)))
