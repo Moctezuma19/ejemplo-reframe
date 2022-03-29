@@ -5,12 +5,11 @@
    [reframeproject.events :as events]))
 
 
-(defn notas
+(defn renglon-nota
   [[id nota]]
   ^{:key id}
   [:div.box {:style {:border-radius 0
-                     :margin-bottom 0
-                     :display       @(re-frame/subscribe [::subs/muestra? (nota :seleccionado)])}}
+                     :margin-bottom 0}}
    [:div {:style {:display "inline-flex"
                   :width   "95%"}}
     [:span.icon {:style    {:border        "1px solid lightgray"
@@ -19,7 +18,7 @@
                             :cursor        "pointer"
                             :margin-top    "2%"
                             :visibility    (when (= id @(re-frame/subscribe [::subs/id-texto-editando])) "hidden")}
-                 :on-click #(re-frame/dispatch [::events/selecciona-texto id])}
+                 :on-click #(re-frame/dispatch [::events/selecciona-nota id])}
      [:i.fas.fa-check {:style {:display (if (nota :seleccionado)
                                           "block"
                                           "none")}}]]
@@ -30,7 +29,7 @@
 
                                      :border          (when-not (= id @(re-frame/subscribe [::subs/id-texto-editando])) "none")
                                      :margin-left     "10px"}
-                   :read-only       (if (= id @(re-frame/subscribe [::subs/id-texto-editando])) false true)
+                   :read-only       (not= id @(re-frame/subscribe [::subs/id-texto-editando]))
                    :on-double-click #(re-frame/dispatch [::events/cambia-id-texto-editando id])
                    :on-blur         #(re-frame/dispatch [::events/cambia-id-texto-editando -1])
                    :on-change       #(re-frame/dispatch [::events/cambia-texto id (-> % .-target .-value)])
@@ -60,27 +59,27 @@
                      :value       @(re-frame/subscribe [::subs/texto])
                      :on-change   #(re-frame/dispatch [::events/on-change-texto (-> % .-target .-value)])
                      :required    true}]]]]
-   (doall (map notas @(re-frame/subscribe [::subs/notas])))
+   (doall (map renglon-nota @(re-frame/subscribe [::subs/notas-seleccionadas])))
    [:div.box {:style {:border-radius "0 0 6px 6px"}}
     [:span {:style {:margin-right "10px"}}
      (str "Por leer: " @(re-frame/subscribe [::subs/total]))]
     [:span {:style    {:margin-right    "10px"
                        :cursor          "pointer"
-                       :text-decoration (when @(re-frame/subscribe [::subs/opcion-seleccionada? 1]) 
+                       :text-decoration (when @(re-frame/subscribe [::subs/opcion-seleccionada? :todas]) 
                                           "underline")}
-            :on-click #(re-frame/dispatch [::events/cambia-opcion-seleccionada 1])} 
+            :on-click #(re-frame/dispatch [::events/cambia-opcion-seleccionada :todas])} 
      "Todas"]
     [:span {:style    {:margin-right    "10px"
                        :cursor          "pointer"
-                       :text-decoration (when @(re-frame/subscribe [::subs/opcion-seleccionada? 2]) 
+                       :text-decoration (when @(re-frame/subscribe [::subs/opcion-seleccionada? :no-leidas]) 
                                           "underline")}
-            :on-click #(re-frame/dispatch [::events/cambia-opcion-seleccionada 2])}
+            :on-click #(re-frame/dispatch [::events/cambia-opcion-seleccionada :no-leidas])}
      "No leídas"]
     [:span {:style    {:margin-right    "10px"
                        :cursor          "pointer"
-                       :text-decoration (when @(re-frame/subscribe [::subs/opcion-seleccionada? 3]) 
+                       :text-decoration (when @(re-frame/subscribe [::subs/opcion-seleccionada? :leidas]) 
                                           "underline")}
-            :on-click #(re-frame/dispatch [::events/cambia-opcion-seleccionada 3])}
+            :on-click #(re-frame/dispatch [::events/cambia-opcion-seleccionada :leidas])}
      "Leídas"]
     [:span {:style    {:display (when-not @(re-frame/subscribe [::subs/hay-marcadas]) 
                                   "none")

@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [reframeproject.db :as db]
-   [reframeproject.coeffects :as coeffects]))
+   [reframeproject.coeffects :as coeffects]
+   [medley.core :as medley]))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -11,8 +12,8 @@
 
 (re-frame/reg-event-db
  ::on-change-texto
- (fn [db [_ newTexto]]
-   (assoc db :texto newTexto)))
+ (fn [db [_ nuevo-texto]]
+   (assoc db :texto nuevo-texto)))
 
 (re-frame/reg-event-db
  ::elimina-texto
@@ -25,29 +26,29 @@
    (assoc db :opcion-seleccionada opcion)))
 
 (re-frame/reg-event-db
- ::selecciona-texto
+ ::selecciona-nota
  (fn [db [_ id-texto]]
-   (assoc db :notas (assoc-in (db :notas) [id-texto :seleccionado]  (not (((db :notas) id-texto) :seleccionado))))))
+   (update-in db [:notas id-texto :seleccionado] #(-> % not))))
 
 (re-frame/reg-event-db
  ::cambia-texto
- (fn [db [_ id-texto nuevoTexto]]
-   (assoc db :notas (assoc-in (db :notas) [id-texto :texto]  nuevoTexto))))
-
-(defn actualiza-nota
-  [nota seleccionado]
-  (let [[id-nota contenido] nota]
-    [id-nota (assoc contenido :seleccionado seleccionado)]))
+ (fn [db [_ id-texto nuevo-texto]]
+   (update-in db [:notas id-texto :texto] nuevo-texto)))
 
 (re-frame/reg-event-db
  ::cambia-seleccionados
  (fn [db [_]]
-   (assoc db :notas (into {} (map #(actualiza-nota % (not (db :seleccionados))) (db :notas))) :seleccionados (not (db :seleccionados)))))
+   (assoc 
+    db 
+    :notas 
+    (medley/map-vals  #(assoc % :seleccionado (-> db :seleccionados not)) (db :notas))
+    :seleccionados 
+    (-> db :seleccionados not))))
 
 (re-frame/reg-event-db
  ::elimina-seleccionados
  (fn [db [_]]
-   (assoc db :notas (into {} (filter (fn [[_ v]] (false? (v :seleccionado))) (db :notas))))))
+   (assoc db :notas (medley/remove-vals :seleccionado (db :notas)))))
 
 (re-frame/reg-event-fx
  ::guarda-texto

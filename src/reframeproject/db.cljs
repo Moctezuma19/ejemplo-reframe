@@ -3,6 +3,7 @@
 (def default-db
   {:texto               ""
    :notas               {}
+   :notas-seleccionadas {}
    :seleccionados       false
-   :opcion-seleccionada 1
+   :opcion-seleccionada :todas
    :id-texto-editando   -1})

@@ -21,15 +21,15 @@
  ::total
  :<- [::notas]
  (fn [notas _]
-   (count (filter (fn [[_ v]] (not (v :seleccionado))) notas))))
+   (count (filter #(-> % :seleccionado not) notas))))
 
 (re-frame/reg-sub
  ::hay-marcadas
  :<- [::notas]
- :<- [::total]
- (fn [[notas total] _]
-   (>  (- (count notas) total) 0)))
-
+ (fn [notas]
+   (->> notas
+        vals
+        (some :seleccionado))))
 
 (re-frame/reg-sub
  ::opcion-seleccionada
@@ -42,17 +42,17 @@
    (= (:opcion-seleccionada db) opcion)))
 
 (re-frame/reg-sub
- ::muestra?
- :<- [::opcion-seleccionada]
- (fn [opcion-seleccionada [_ seleccionado]]
-   (case opcion-seleccionada
-     1 "block"
-     2 (if (not seleccionado) "block" "none")
-     3 (if seleccionado "block" "none")
-     _ "none")))
-
-(re-frame/reg-sub
  ::id-texto-editando
  (fn [db]
    (:id-texto-editando db)))
+
+(re-frame/reg-sub
+ ::notas-seleccionadas
+ :<- [::opcion-seleccionada]
+ :<- [::notas]
+ (fn [[opcion-seleccionada notas]]
+   (case opcion-seleccionada
+     :todas     notas
+     :no-leidas (filter (complement :seleccionado) notas)
+     :leidas    (filter :seleccionado notas))))
   
